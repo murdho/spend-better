@@ -1,0 +1,18 @@
+{:banks
+ {:BANK-NAME-1
+  {:filename #"bank1.*\.csv"
+   :field-mapping
+   {:date "Date"
+    :other "Payer / receiver"
+    :amount "Amount"
+    :currency "Currency"
+    :description "Description"}}}
+
+ :BANK-NAME-2
+ {:filename #"bank2.*\.csv"
+  :field-mapping
+  {:date "Date"
+   :other "Payer / receiver"
+   :amount "Amount"
+   :currency "Currency"
+   :description "Description"}}}
