@@ -1,1 +1,2 @@
+;; deps are managed by bb.edn, this file exists only for Cursive.
 {:deps {}}
