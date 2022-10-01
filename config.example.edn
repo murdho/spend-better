@@ -1,6 +1,7 @@
 {:banks
  {:BANK-NAME-1
   {:filename #"bank1.*\.csv"
+   :skip-bom true
    :field-mapping
    {:date "Date"
     :other "Payer / receiver"
@@ -15,4 +16,7 @@
    :other "Payer / receiver"
    :amount "Amount"
    :currency "Currency"
-   :description "Description"}}}
+   :description "Description"}}
+
+ :categories
+ {:groceries {:other [#rule "xyz foods"]}}}

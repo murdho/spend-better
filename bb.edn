@@ -1,2 +1,3 @@
 {:deps {}
- :tasks {import spend-better.import/hello}}
+ :paths ["src"]
+ :tasks {import spend-better/import-file}}
