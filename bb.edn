@@ -1,5 +1,6 @@
 {:deps {}
  :paths ["src"]
+ :pods {org.babashka/postgresql {:version "0.1.1"}}
  :tasks {import spend-better/import-file
          test {:extra-paths ["test"]
                :requires ([clojure.test :as t]
