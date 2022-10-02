@@ -4,13 +4,24 @@
     [clojure.edn :as edn]
     [spend-better.util :as util]))
 
-(def ^:private config-file "config.edn")
+(def ^:private dotfile ".spend-better.edn")
+
+(def ^:private config-file
+  (delay (->> dotfile
+              slurp
+              edn/read-string
+              :config-file-location)))
 
 (def ^:private config
-  (delay (->> config-file
+  (delay (->> @config-file
               slurp
               (edn/read-string {:readers {'regex re-pattern
                                           'rule-regex util/re-pattern-relaxed}}))))
+
+(defn set-config-file [filepath]
+  (if filepath
+    (spit dotfile (pr-str {:config-file-location filepath}))
+    (util/exit! "ERROR: config file path expected")))
 
 (defn filename->bank [filename]
   (let [[name config] (first

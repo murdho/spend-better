@@ -5,3 +5,7 @@
 
 (def re-pattern-relaxed
   (memoize re-pattern-relaxed'))
+
+(defn exit! [message]
+  (.println *err* message)
+  (System/exit 1))

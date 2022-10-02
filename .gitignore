@@ -9,6 +9,7 @@ pom.xml.asc
 /lib/
 /classes/
 /target/
+/out/
 /checkouts/
 .lein-deps-sum
 .lein-repl-history
@@ -19,6 +20,5 @@ pom.xml.asc
 
 # End of https://www.toptal.com/developers/gitignore/api/clojure
 
-config.edn
-tmp
+.spend-better.edn
 statements

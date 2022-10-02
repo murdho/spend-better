@@ -1,7 +1,10 @@
 {:deps {}
  :paths ["src"]
  :pods {org.babashka/postgresql {:version "0.1.1"}}
- :tasks {import spend-better/import-file
+ :tasks {:requires ([spend-better]
+                    [spend-better.config :as config])
+         import (spend-better/import-file (first *command-line-args*))
+         set-config (config/set-config-file (first *command-line-args*))
          test {:extra-paths ["test"]
                :requires ([clojure.test :as t]
                           [spend-better-test])
