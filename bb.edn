@@ -1,3 +1,8 @@
 {:deps {}
  :paths ["src"]
- :tasks {import spend-better/import-file}}
+ :tasks {import spend-better/import-file
+         test {:extra-paths ["test"]
+               :requires ([clojure.test :as t]
+                          [spend-better-test])
+               :task (let [{:keys [fail error]} (t/run-tests 'spend-better-test)]
+                       (System/exit (if (zero? (+ fail error)) 0 1)))}}}

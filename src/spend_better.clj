@@ -11,10 +11,13 @@
 
 (def re-pattern-relaxed (memoize re-pattern-relaxed'))
 
-(def ^:private config (->> "config.edn"
-                           slurp
-                           (edn/read-string {:readers {'regex re-pattern
-                                                       'rule-regex re-pattern-relaxed}})))
+(def config-file "config.edn")
+
+(def config
+  (delay (->> config-file
+              slurp
+              (edn/read-string {:readers {'regex re-pattern
+                                          'rule-regex re-pattern-relaxed}}))))
 
 (defn csv-data->maps [csv-data]
   (map zipmap
@@ -24,9 +27,10 @@
 
 (defn filename->bank-config [filename]
   (let [[name config] (first (filter (fn [[_ config]] (re-matches (:filename config) filename))
-                                     (:banks config)))]
-    (when config
-      (assoc config :name name))))
+                                     (:banks @config)))]
+    (if config
+      (assoc config :name name)
+      (throw (ex-info (str "config not found for filename " filename) {})))))
 
 (defn read-statement-csv [{:keys [skip-bom]} file]
   (with-open [reader (io/reader file)]
@@ -51,12 +55,12 @@
     (re-matches pattern-or-string s)))
 
 (defn categorize-transaction [tx]
-  (let [categories (:categories config)
+  (let [categories (:categories @config)
         matches? (fn [rule]
                    (cond
                      (map? rule) (every? (fn [[field value]]
                                            (equals? value (get tx field))) rule)
-                     :else (re-matches (re-pattern-relaxed rule) (:other tx))))]
+                     (:other tx) (re-matches (re-pattern-relaxed rule) (:other tx))))]
     (loop [[[category rules] & rest] categories]
       (if category
         (if (some matches? rules)
@@ -68,6 +72,7 @@
   (let [file (io/file filepath)
         bank-config (filename->bank-config (.getName file))
         raw-transactions (read-statement-csv bank-config file)
-        normalized-txs (map (partial normalize-transaction bank-config) raw-transactions)
+        normalized-txs (doall (map (partial normalize-transaction bank-config) raw-transactions))
         categorized (map categorize-transaction normalized-txs)]
-    (run! #(prn %) categorized)))
+    ;(run! #(prn %) categorized)
+    categorized))

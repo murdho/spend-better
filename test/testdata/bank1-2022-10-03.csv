@@ -1,0 +1,5 @@
+﻿"Account","Document number","Date","Payer / recipient name","Amount","Description","Currency"
+"TEST123456789","1",2022-07-02,"Foodmart",-12.34,"Receipt #6543210987","EUR"
+"TEST123456789","1",2022-07-05,"Bookshop P15E0E7B25",-27.15,"2022-07-05 13:24\BKSHP\JUPITER","EUR"
+"TEST123456789","1",2022-08-01,"",-1.50,"Card (..1234) monthly fee 07-2022","EUR"
+"TEST123456789","1",2022-08-02,"Indie Platform",350.00,"Sales July'22","EUR"

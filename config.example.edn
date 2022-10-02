@@ -1,16 +1,16 @@
 {:banks
- {:BANK-NAME-1
-  {:filename #regex "bank1.*\.csv"
+ {:bank-one
+  {:filename #regex "bank1.*\\.csv"
    :skip-bom true
    :field-mapping
    {:date "Date"
-    :other "Payer / receiver"
+    :other "Payer / recipient name"
     :amount "Amount"
     :currency "Currency"
     :description "Description"}}}
 
- :BANK-NAME-2
- {:filename #regex "bank2.*\.csv"
+ :capital-two
+ {:filename #regex "bank2.*\\.csv"
   :field-mapping
   {:date "Date"
    :other "Payer / receiver"
@@ -19,6 +19,9 @@
    :description "Description"}}
 
  :categories
- {:groceries ["food market"
+ {:groceries ["foodmart"
               {:description "groceries abc"}
-              {:description #rule-regex "food.*shop"}]}}
+              {:description #rule-regex "food.*shop"}]
+  :books ["bookshop"]
+  :fees [{:description #rule-regex "card.*monthly fee"}]
+  :sales ["indie platform"]}}
