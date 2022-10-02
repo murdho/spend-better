@@ -1,6 +1,6 @@
 {:banks
  {:BANK-NAME-1
-  {:filename #"bank1.*\.csv"
+  {:filename #regex "bank1.*\.csv"
    :skip-bom true
    :field-mapping
    {:date "Date"
@@ -10,7 +10,7 @@
     :description "Description"}}}
 
  :BANK-NAME-2
- {:filename #"bank2.*\.csv"
+ {:filename #regex "bank2.*\.csv"
   :field-mapping
   {:date "Date"
    :other "Payer / receiver"
@@ -19,4 +19,6 @@
    :description "Description"}}
 
  :categories
- {:groceries {:other [#rule "xyz foods"]}}}
+ {:groceries ["food market"
+              {:description "groceries abc"}
+              {:description #rule-regex "food.*shop"}]}}

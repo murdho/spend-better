@@ -6,21 +6,21 @@
     [clojure.set :as set]
     [clojure.string :as string]))
 
+(defn re-pattern-relaxed' [s]
+  (re-pattern (str "(?i).*" s ".*")))
+
+(def re-pattern-relaxed (memoize re-pattern-relaxed'))
+
+(def ^:private config (->> "config.edn"
+                           slurp
+                           (edn/read-string {:readers {'regex re-pattern
+                                                       'rule-regex re-pattern-relaxed}})))
+
 (defn csv-data->maps [csv-data]
   (map zipmap
        (->> (first csv-data)
             repeat)
        (rest csv-data)))
-
-(defn re-pattern-relaxed [s]
-  (re-pattern (str "(?i).*" s ".*")))
-
-;; TODO: all category rules should be automatically relaxed
-
-(def ^:private config (->> "config.edn"
-                           slurp
-                           (edn/read-string {:readers {'regex re-pattern
-                                                       'rule re-pattern-relaxed}})))
 
 (defn filename->bank-config [filename]
   (let [[name config] (first (filter (fn [[_ config]] (re-matches (:filename config) filename))
@@ -45,22 +45,21 @@
       (update :amount string/replace \, \.)
       (update :amount parse-double)))
 
-(defn any-rule-applies? [tx rules]
-  (loop [[[field matchers] & rest] rules]
-    (when (seq matchers)
-      (let [value (get tx field)
-            matches? #(cond
-                        (string? %) (= value %)
-                        :else (re-matches % value))]
-        (if (some matches? matchers)
-          true
-          (recur rest))))))
+(defn equals? [pattern-or-string s]
+  (if (string? pattern-or-string)
+    (= pattern-or-string s)
+    (re-matches pattern-or-string s)))
 
 (defn categorize-transaction [tx]
-  (let [categories (:categories config)]
+  (let [categories (:categories config)
+        matches? (fn [rule]
+                   (cond
+                     (map? rule) (every? (fn [[field value]]
+                                           (equals? value (get tx field))) rule)
+                     :else (re-matches (re-pattern-relaxed rule) (:other tx))))]
     (loop [[[category rules] & rest] categories]
-      (if (seq rules)
-        (if (any-rule-applies? tx rules)
+      (if category
+        (if (some matches? rules)
           (assoc tx :category category)
           (recur rest))
         (assoc tx :category nil)))))
