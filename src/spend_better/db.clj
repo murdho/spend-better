@@ -1,22 +1,21 @@
 (ns spend-better.db
-  (:require [spend-better.config :as config]))
-
-(def db {:dbtype   "postgresql"
-         :host     "localhost"
-         :dbname   "spend_better_dev"
-         :user     "postgres"
-         :password ""
-         :port     5432})
+  (:require
+    [clojure.string :as string]
+    [pod.babashka.postgresql :as pg]
+    [spend-better.config :as config])
+  (:import
+    (java.util UUID)))
 
 (def ^:private db
   (delay (-> (config/get :database)
              (assoc :dbtype "postgresql"))))
 
 (defn insert-transactions! [txs]
-  (let [placeholders (->> "(?::date, ?, ?, ?, ?, ?, ?)"
+  (let [import-uuid (str (UUID/randomUUID))
+        placeholders (->> "(?::date, ?, ?, ?, ?, ?, ?, ?)"
                           (repeat (count txs))
                           (string/join ", "))
-        sql (str "INSERT INTO transactions (date, other, amount, description, currency, filename, category) "
+        sql (str "INSERT INTO transactions (date, other, amount, description, currency, filename, category, import_uuid) "
                  "VALUES " placeholders)
         values (mapcat (juxt :date
                              :other
@@ -24,5 +23,7 @@
                              :description
                              :currency
                              :filename
-                             (comp #(some-> % ) :category)) txs)]
-    (pg/execute! db (cons sql values))))
+                             (comp #(some-> % name) :category)
+                             (constantly import-uuid))
+                       txs)]
+    (pg/execute! @db (cons sql values))))

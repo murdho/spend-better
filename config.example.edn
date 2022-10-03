@@ -1,4 +1,11 @@
-{:banks
+{:database
+ {:host "localhost"
+  :dbname "spend_better_dev"
+  :user "postgres"
+  :password ""
+  :port 5432}
+
+ :banks
  {:bank-one
   {:filename #regex "bank1.*\\.csv"
    :skip-bom true
@@ -7,16 +14,16 @@
     :other "Payer / recipient name"
     :amount "Amount"
     :currency "Currency"
-    :description "Description"}}}
+    :description "Description"}}
 
- :capital-two
- {:filename #regex "bank2.*\\.csv"
-  :field-mapping
-  {:date "Date"
-   :other "Payer / receiver"
-   :amount "Amount"
-   :currency "Currency"
-   :description "Description"}}
+  :capital-two
+  {:filename #regex "bank2.*\\.csv"
+   :field-mapping
+   {:date "Date"
+    :other "Payer / receiver"
+    :amount "Amount"
+    :currency "Currency"
+    :description "Description"}}}
 
  :categories
  {:groceries ["foodmart"
