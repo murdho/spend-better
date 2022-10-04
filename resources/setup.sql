@@ -27,12 +27,12 @@ CREATE TABLE imports
 CREATE TABLE transactions
 (
     id          SERIAL PRIMARY KEY,
-    category    TEXT,
     date        DATE,
     other       TEXT,
     amount      DECIMAL(15, 2) NOT NULL,
     description TEXT,
     currency    TEXT,
+    category    TEXT,
     import_id   INTEGER NOT NULL REFERENCES imports(id),
     hash        TEXT NOT NULL GENERATED ALWAYS AS (calc_transaction_hash(date, other, amount, description, currency)) STORED
 );

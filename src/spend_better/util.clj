@@ -9,3 +9,6 @@
 (defn exit! [message]
   (.println *err* message)
   (System/exit 1))
+
+(defn truncate [s n]
+  (apply str (take n s)))
