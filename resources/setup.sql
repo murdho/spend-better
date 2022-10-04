@@ -19,6 +19,7 @@ PARALLEL SAFE;
 CREATE TABLE imports
 (
     id          SERIAL PRIMARY KEY,
+    bank        TEXT NOT NULL,
     filename    TEXT NOT NULL,
     created_at  TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now()
 );
