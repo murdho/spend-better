@@ -7,5 +7,4 @@
 (defn import-file [filepath]
   (let [file (io/file filepath)
         txs (import/read-statement-file file)]
-    (run! #(prn %) txs)
-    (db/insert-transactions! txs)))
+    (db/insert-bank-statement! (.getName file) txs)))

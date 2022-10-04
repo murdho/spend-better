@@ -45,7 +45,6 @@
     (->> reader
          csv/read-csv
          csv-data->maps
-         (map #(assoc % :filename (.getName file)))
          doall)))
 
 (defn read-statement-file [file]
