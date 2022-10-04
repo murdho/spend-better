@@ -2,11 +2,14 @@ CREATE FUNCTION calc_transaction_hash(date DATE, other TEXT, amount DECIMAL, des
 RETURNS TEXT AS
 $$
 SELECT md5(
-    COALESCE(date::TEXT, '') ||
-    COALESCE(other, '') ||
-    amount::TEXT ||
-    COALESCE(description, '') ||
-    COALESCE(currency, '')
+    concat_ws(
+        ':',
+        'date', date,
+        'other', other,
+        'amount', amount,
+        'description', description,
+        'currency', currency
+    )
 )
 $$
 LANGUAGE sql
@@ -23,8 +26,7 @@ CREATE TABLE transactions
     description TEXT,
     currency    TEXT,
     filename    TEXT,
-    hash        TEXT NOT NULL GENERATED ALWAYS AS (calc_transaction_hash(date, other, amount, description, currency)) STORED,
-    import_uuid TEXT NOT NULL
+    hash        TEXT NOT NULL GENERATED ALWAYS AS (calc_transaction_hash(date, other, amount, description, currency)) STORED
 );
 
 CREATE VIEW duplicate_transactions AS
@@ -33,5 +35,5 @@ CREATE VIEW duplicate_transactions AS
         dupl.*,
         orig.id AS original_id
     FROM transactions orig
-    JOIN transactions dupl AS dupl.hash = orig.hash AND dupl.filename != orig.filename AND dupl.id > orig.id
+    JOIN transactions dupl ON dupl.hash = orig.hash AND dupl.filename != orig.filename AND dupl.id > orig.id
 );

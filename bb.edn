@@ -5,6 +5,7 @@
                     [spend-better.config :as config])
          import (spend-better/import-file (first *command-line-args*))
          set-config (config/set-config-file (first *command-line-args*))
+         db:setup spend-better.db/setup
          test {:extra-paths ["test"]
                :requires ([clojure.test :as t]
                           [spend-better-test])
