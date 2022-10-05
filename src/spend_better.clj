@@ -6,8 +6,7 @@
     [spend-better.db :as db]
     [spend-better.import :as import]
     [spend-better.transaction :as bank-transaction]
-    [spend-better.util :as util]
-    [clojure.string :as string]))
+    [spend-better.util :as util]))
 
 (defn import-statement [filepath]
   (let [file (io/file filepath)
@@ -34,3 +33,12 @@
      (when (and (= save "save") (seq with-category))
        (db/update-categories! with-category)
        (println "-----------------------\n  Saved successfully!\n-----------------------")))))
+
+(defn -main
+  ([]
+   (util/exit! "Usage: ..."))
+  ([cmd & args]
+   (case cmd
+     "import" (apply import-statement args)
+     "categorize" (apply categorize-transactions args)
+     (util/exit! (str "ERR: unknown command: " cmd)))))
