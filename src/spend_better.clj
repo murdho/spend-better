@@ -28,11 +28,13 @@
                           (map (partial bank-transaction/categorize categories))
                           (map #(update % :description util/truncate 60))
                           (map #(update % :category (fnil name ""))))
-         with-category (filter :category categorized)]
-     (pprint/print-table cols categorized)
-     (when (and (= save "save") (seq with-category))
-       (db/update-categories! with-category)
-       (println "-----------------------\n  Saved successfully!\n-----------------------")))))
+         with-category (filter (comp seq :category) categorized)]
+     (if (and (= save "save") (seq with-category))
+       (do
+         (db/update-categories! with-category)
+         (pprint/print-table cols with-category)
+         (println "-----------------------\n  Saved successfully!\n-----------------------"))
+       (pprint/print-table cols categorized)))))
 
 (defn -main
   ([]

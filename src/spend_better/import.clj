@@ -11,14 +11,15 @@
             repeat)
        (rest csv-data)))
 
-(defn- read-csv [file {:keys [skip-bom]}]
+(defn- read-csv [file {:keys [skip-bom separator]
+                       :or {separator \,}}]
   (with-open [reader (io/reader file)]
     (when skip-bom
       (.skip reader 1))
-    (->> reader
-         csv/read-csv
-         csv-data->maps
-         doall)))
+    (-> reader
+        (csv/read-csv :separator separator)
+        csv-data->maps
+        doall)))
 
 (defn read-statement-file [bank-config file]
   (let [categories (config/get :categories)]

@@ -64,6 +64,6 @@
 (defn uncategorized-bank-transactions []
   (let [sql "SELECT id, date::TEXT AS date, other, amount, description, currency FROM transactions
              WHERE category IS NULL
-             ORDER BY date, id"]
+             ORDER BY date, amount"]
     (->> (pg/execute! (pg/get-connection @db) [sql])
          normalize-keys)))
