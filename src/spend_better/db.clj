@@ -12,7 +12,22 @@
   (delay (-> (config/get :database)
              (assoc :dbtype "postgresql"))))
 
+(defn- with-db-connection [f]
+  (let [conn (pg/get-connection @db)]
+    (try
+      (f conn)
+      (finally
+        (pg/close-connection conn)))))
+
+(defn- with-db-transaction [f]
+  (with-db-connection
+    (fn [conn]
+      (pg/with-transaction [db-tx conn]
+        (f db-tx)))))
+
 (defn setup
+  ([]
+   (setup nil))
   ([override-dbname]
    (let [sql (slurp "resources/setup.sql")
          conn (cond-> @db
@@ -52,10 +67,11 @@
     (pg/execute! conn [sql])))
 
 (defn insert-bank-statement! [import txs]
-  (pg/with-transaction [conn (pg/get-connection @db)]
-    (let [{import-id :id} (create-import! conn import)]
-      (create-bank-transactions! conn import-id txs)
-      (deduplicate-bank-transactions! conn))))
+  (with-db-transaction
+    (fn [db-tx]
+      (let [{import-id :id} (create-import! db-tx import)]
+        (create-bank-transactions! db-tx import-id txs)
+        (deduplicate-bank-transactions! db-tx)))))
 
 (defn update-categories! [txs]
   (let [sql (str "UPDATE transactions SET category = tx.category FROM (VALUES "

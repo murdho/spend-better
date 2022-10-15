@@ -15,8 +15,9 @@
                        (shell "createdb" "spend_better_test"))
          db:drop (do (shell "dropdb" "spend_better_dev")
                      (shell "dropdb" "spend_better_test"))
-         db:setup (do (db/setup "spend_better_dev")
-                      (db/setup "spend_better_test"))
+         db:setup:dev (do (db/setup "spend_better_dev")
+                          (db/setup "spend_better_test"))
+         db:setup db/setup
          test {:extra-paths ["test"]
                :requires ([clojure.test :as t]
                           [spend-better-test])
