@@ -74,7 +74,7 @@
          normalize-keys)))
 
 (defn all-bank-transactions []
-  (let [sql "SELECT id, date::TEXT AS date, other, amount, description, currency, category
+  (let [sql "SELECT id, date::TEXT AS date, other, amount, description, currency, category, category AS previous_category
              FROM transactions
              ORDER BY date, amount"]
     (->> (pg/execute! (pg/get-connection @db) [sql])

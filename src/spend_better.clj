@@ -12,7 +12,7 @@
            (java.util Date)))
 
 (def default-columns
-  [:category :date :other :amount :description :currency])
+  [:date :other :amount :description :currency :category])
 
 (defn import-statement [filepath]
   (let [file (io/file filepath)
@@ -22,6 +22,9 @@
                 :filename filename}
         txs (import/read-statement-file bank-config file)]
     (db/insert-bank-statement! import txs)))
+
+(defn import-statements [filepath & filepaths]
+  (run! import-statement (conj filepaths filepath)))
 
 (defn- normalize-for-table [tx]
  (-> tx
@@ -58,19 +61,13 @@
                                  (cond-> tx
                                    (not= previous-category category) (assoc :changed-from previous-category)))))
          with-changed-category (filter (comp seq :changed-from) categorized)
-         cols (concat [(first default-columns) :changed-from]
-                      (rest default-columns))]
+         cols (conj default-columns :changed-from)]
      (if (and (= save "save") (seq with-changed-category))
        (do
          (db/update-categories! with-changed-category)
          (pprint/print-table cols with-changed-category)
          (println "-----------------------\n  Saved successfully!\n-----------------------"))
        (pprint/print-table cols categorized)))))
-
-(defn all []
-  (let [transactions (->> (db/all-bank-transactions)
-                          (map normalize-for-table))]
-    (pprint/print-table default-columns transactions)))
 
 (defn overview
   ([]
@@ -111,13 +108,20 @@
      (pprint/print-table [:category :date :other :amount :description :currency :id]
                          transactions))))
 
+(defn all []
+  (let [transactions (->> (db/all-bank-transactions)
+                          (map normalize-for-table))]
+    (pprint/print-table default-columns transactions)))
+
 (defn -main
   ([]
    (util/exit! "Usage: ..."))
   ([cmd & args]
    (case cmd
-     "import" (apply import-statement args)
+     "import" (apply import-statements args)
      "categorize" (apply categorize args)
+     "recategorize" (apply recategorize args)
      "overview" (apply overview args)
      "details" (apply details args)
+     "all" (apply all args)
      (util/exit! (str "ERR: unknown command: " cmd)))))

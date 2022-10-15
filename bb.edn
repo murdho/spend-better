@@ -4,7 +4,7 @@
  :tasks {:requires ([spend-better]
                     [spend-better.config :as config]
                     [spend-better.db :as db])
-         import spend-better/import-statement
+         import spend-better/import-statements
          categorize spend-better/categorize
          recategorize spend-better/recategorize
          all spend-better/all
