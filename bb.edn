@@ -4,7 +4,9 @@
  :tasks {:requires ([spend-better]
                     [spend-better.config :as config])
          import (spend-better/import-statement (first *command-line-args*))
-         categorize spend-better/categorize-transactions
+         categorize spend-better/categorize
+         recategorize spend-better/recategorize
+         all spend-better/all
          overview spend-better/overview
          details spend-better/details
          set-config (config/set-config-file (first *command-line-args*))

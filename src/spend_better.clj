@@ -11,6 +11,9 @@
   (:import (java.text SimpleDateFormat)
            (java.util Date)))
 
+(def default-columns
+  [:category :date :other :amount :description :currency])
+
 (defn import-statement [filepath]
   (let [file (io/file filepath)
         filename (.getName file)
@@ -20,24 +23,54 @@
         txs (import/read-statement-file bank-config file)]
     (db/insert-bank-statement! import txs)))
 
-(defn categorize-transactions
+(defn- normalize-for-table [tx]
+ (-> tx
+     (update :description util/truncate 60)
+     (update :category (fnil name ""))))
+
+(defn- categorize-transactions [txs]
+  (let [categories (config/get :categories)]
+    (->> txs
+         (map (partial bank-transaction/categorize categories))
+         (map normalize-for-table))))
+
+(defn categorize
   ([]
-   (categorize-transactions false))
+   (categorize false))
   ([save]
-   (let [categories (config/get :categories)
-         cols [:date :other :amount :description :currency :category]
-         uncategorized (db/uncategorized-bank-transactions)
-         categorized (->> uncategorized
-                          (map (partial bank-transaction/categorize categories))
-                          (map #(update % :description util/truncate 60))
-                          (map #(update % :category (fnil name ""))))
+   (let [uncategorized (db/uncategorized-bank-transactions)
+         categorized (categorize-transactions uncategorized)
          with-category (filter (comp seq :category) categorized)]
      (if (and (= save "save") (seq with-category))
        (do
          (db/update-categories! with-category)
-         (pprint/print-table cols with-category)
+         (pprint/print-table default-columns with-category)
+         (println "-----------------------\n  Saved successfully!\n-----------------------"))
+       (pprint/print-table default-columns categorized)))))
+
+(defn recategorize
+  ([]
+   (recategorize false))
+  ([save]
+   (let [transactions (db/all-bank-transactions)
+         categorized (->> (categorize-transactions transactions)
+                          (map (fn [{:keys [previous-category category] :as tx}]
+                                 (cond-> tx
+                                   (not= previous-category category) (assoc :changed-from previous-category)))))
+         with-changed-category (filter (comp seq :changed-from) categorized)
+         cols (concat [(first default-columns) :changed-from]
+                      (rest default-columns))]
+     (if (and (= save "save") (seq with-changed-category))
+       (do
+         (db/update-categories! with-changed-category)
+         (pprint/print-table cols with-changed-category)
          (println "-----------------------\n  Saved successfully!\n-----------------------"))
        (pprint/print-table cols categorized)))))
+
+(defn all []
+  (let [transactions (->> (db/all-bank-transactions)
+                          (map normalize-for-table))]
+    (pprint/print-table default-columns transactions)))
 
 (defn overview
   ([]
@@ -84,7 +117,7 @@
   ([cmd & args]
    (case cmd
      "import" (apply import-statement args)
-     "categorize" (apply categorize-transactions args)
+     "categorize" (apply categorize args)
      "overview" (apply overview args)
      "details" (apply details args)
      (util/exit! (str "ERR: unknown command: " cmd)))))

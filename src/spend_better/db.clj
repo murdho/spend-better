@@ -70,6 +70,13 @@
     (->> (pg/execute! (pg/get-connection @db) [sql])
          normalize-keys)))
 
+(defn all-bank-transactions []
+  (let [sql "SELECT id, date::TEXT AS date, other, amount, description, currency, category
+             FROM transactions
+             ORDER BY date, amount"]
+    (->> (pg/execute! (pg/get-connection @db) [sql])
+         normalize-keys)))
+
 (defn aggregated-transactions []
   (let [sql "SELECT to_char(date, 'YYYY-MM') AS month, category, sum(amount) AS amount
              FROM transactions
