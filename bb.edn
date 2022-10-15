@@ -5,6 +5,7 @@
                     [spend-better.config :as config])
          import (spend-better/import-statement (first *command-line-args*))
          categorize spend-better/categorize-transactions
+         overview spend-better/overview
          set-config (config/set-config-file (first *command-line-args*))
          db:setup spend-better.db/setup
          test {:extra-paths ["test"]

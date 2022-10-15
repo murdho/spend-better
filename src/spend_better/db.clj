@@ -6,7 +6,8 @@
     [camel-snake-kebab.extras :as cske]
     [clojure.string :as string]
     [pod.babashka.postgresql :as pg]
-    [spend-better.config :as config]))
+    [spend-better.config :as config]
+    [clojure.pprint :as pprint]))
 
 (def ^:private db
   (delay (-> (config/get :database)
@@ -31,7 +32,7 @@
 
 (defn- create-bank-transactions! [conn import-id txs]
   (let [sql (str "INSERT INTO transactions (date, other, amount, description, currency, import_id, category)
-                  VALUES " (repeat-placeholders (count txs) "(?::date, ?, ?, ?, ?, ?, ?)"))
+                  VALUES " (repeat-placeholders (count txs) "(?::DATE, ?, ?, ?, ?, ?, ?)"))
         values (mapcat (juxt :date
                              :other
                              :amount
@@ -62,8 +63,19 @@
     (pg/execute! (pg/get-connection @db) (cons sql values))))
 
 (defn uncategorized-bank-transactions []
-  (let [sql "SELECT id, date::TEXT AS date, other, amount, description, currency FROM transactions
+  (let [sql "SELECT id, date::TEXT AS date, other, amount, description, currency
+             FROM transactions
              WHERE category IS NULL
              ORDER BY date, amount"]
     (->> (pg/execute! (pg/get-connection @db) [sql])
          normalize-keys)))
+
+(defn aggregated-transactions []
+  (let [sql "SELECT to_char(date, 'YYYY-MM') AS month, category, sum(amount) AS amount
+             FROM transactions
+             GROUP BY 1, 2
+             ORDER BY 3"
+        excluded-categories (set (map name (config/get :excluded-categories)))]
+    (->> (pg/execute! (pg/get-connection @db) [sql])
+         normalize-keys
+         (remove #(excluded-categories (:category %))))))

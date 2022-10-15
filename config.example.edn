@@ -28,10 +28,13 @@
     :currency "Currency"
     :description "Description"}}}
 
+ :excluded-categories [:internal]
+
  :categories
  {:groceries ["foodmart"
               {:description "groceries abc"}
               {:description #rule-regex "food.*shop"}]
   :books ["bookshop"]
   :fees [{:description #rule-regex "card.*monthly fee"}]
-  :sales ["indie platform"]}}
+  :sales ["indie platform"]
+  :internal ["me myself"]}}
