@@ -2,15 +2,21 @@
  :paths ["src"]
  :pods {org.babashka/postgresql {:version "0.1.1"}}
  :tasks {:requires ([spend-better]
-                    [spend-better.config :as config])
-         import (spend-better/import-statement (first *command-line-args*))
+                    [spend-better.config :as config]
+                    [spend-better.db :as db])
+         import spend-better/import-statement
          categorize spend-better/categorize
          recategorize spend-better/recategorize
          all spend-better/all
          overview spend-better/overview
          details spend-better/details
-         set-config (config/set-config-file (first *command-line-args*))
-         db:setup spend-better.db/setup
+         set-config config/set-config-file
+         db:create (do (shell "createdb" "spend_better_dev")
+                       (shell "createdb" "spend_better_test"))
+         db:drop (do (shell "dropdb" "spend_better_dev")
+                     (shell "dropdb" "spend_better_test"))
+         db:setup (do (db/setup "spend_better_dev")
+                      (db/setup "spend_better_test"))
          test {:extra-paths ["test"]
                :requires ([clojure.test :as t]
                           [spend-better-test])

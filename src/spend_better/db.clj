@@ -6,16 +6,19 @@
     [camel-snake-kebab.extras :as cske]
     [clojure.string :as string]
     [pod.babashka.postgresql :as pg]
-    [spend-better.config :as config]
-    [clojure.pprint :as pprint]))
+    [spend-better.config :as config]))
 
 (def ^:private db
   (delay (-> (config/get :database)
              (assoc :dbtype "postgresql"))))
 
-(defn setup []
-  (let [sql (slurp "resources/setup.sql")]
-    (pg/execute! @db [sql])))
+(defn setup
+  ([override-dbname]
+   (let [sql (slurp "resources/setup.sql")
+         conn (cond-> @db
+                override-dbname (assoc :dbname override-dbname)
+                :finally pg/get-connection)]
+     (pg/execute! conn [sql]))))
 
 (defn- normalize-keys [result]
   (cske/transform-keys csk/->kebab-case-keyword result))
@@ -50,9 +53,9 @@
 
 (defn insert-bank-statement! [import txs]
   (pg/with-transaction [conn (pg/get-connection @db)]
-     (let [{import-id :id} (create-import! conn import)]
-       (create-bank-transactions! conn import-id txs)
-       (deduplicate-bank-transactions! conn))))
+    (let [{import-id :id} (create-import! conn import)]
+      (create-bank-transactions! conn import-id txs)
+      (deduplicate-bank-transactions! conn))))
 
 (defn update-categories! [txs]
   (let [sql (str "UPDATE transactions SET category = tx.category FROM (VALUES "

@@ -1,6 +1,6 @@
 {:database
  {:host "localhost"
-  :dbname "spend_better_dev"
+  :dbname "spend_better_test"
   :user "postgres"
   :password ""
   :port 5432}
