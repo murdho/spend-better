@@ -25,7 +25,7 @@
 (defn- equals-or-matches? [pattern-or-value v]
   (if (instance? Pattern pattern-or-value)
     (re-matches pattern-or-value v)
-    (= pattern-or-value v)))
+    (= 0 (compare pattern-or-value v))))
 
 (defn categorize [categories tx]
   (let [matches? (fn [rule]

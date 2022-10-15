@@ -7,7 +7,9 @@
     [spend-better.db :as db]
     [spend-better.import :as import]
     [spend-better.transaction :as bank-transaction]
-    [spend-better.util :as util]))
+    [spend-better.util :as util])
+  (:import (java.text SimpleDateFormat)
+           (java.util Date)))
 
 (defn import-statement [filepath]
   (let [file (io/file filepath)
@@ -66,6 +68,16 @@
      (pprint/print-table cols (conj (vec category-rows)
                                     (assoc totals :category "TOTAL"))))))
 
+(defn details
+  ([]
+   (let [current-month (.format (SimpleDateFormat. "yyyy-MM") (Date.))]
+     (details current-month)))
+  ([month]
+   (let [transactions (->> (db/transactions-for-month month)
+                           (map #(update % :description util/truncate 60)))]
+     (pprint/print-table [:category :date :other :amount :description :currency :id]
+                         transactions))))
+
 (defn -main
   ([]
    (util/exit! "Usage: ..."))
@@ -74,4 +86,5 @@
      "import" (apply import-statement args)
      "categorize" (apply categorize-transactions args)
      "overview" (apply overview args)
+     "details" (apply details args)
      (util/exit! (str "ERR: unknown command: " cmd)))))

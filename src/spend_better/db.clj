@@ -79,3 +79,11 @@
     (->> (pg/execute! (pg/get-connection @db) [sql])
          normalize-keys
          (remove #(excluded-categories (:category %))))))
+
+(defn transactions-for-month [month]
+  (let [sql "SELECT id, date::TEXT AS date, other, amount, description, currency, category
+             FROM transactions
+             WHERE to_char(date, 'YYYY-MM') = ?
+             ORDER BY lower(category), date"]
+    (->> (pg/execute! (pg/get-connection @db) [sql month])
+         normalize-keys)))
