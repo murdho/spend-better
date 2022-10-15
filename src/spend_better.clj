@@ -37,30 +37,34 @@
          (println "-----------------------\n  Saved successfully!\n-----------------------"))
        (pprint/print-table cols categorized)))))
 
-(defn overview []
-  (let [transactions (db/aggregated-transactions)
-        ->category-row (fn [[category txs-cat]]
-                         (let [category (if category (name category) "-")
-                               m (->> (group-by :month txs-cat)
-                                      (map (fn [[month txs-mon]]
-                                             (let [month (if month (keyword month) :-)
-                                                   total (->> (map :amount txs-mon)
-                                                              (reduce +))]
-                                               [month total])))
-                                      (into {}))]
-                           (assoc m :category category)))
-        category-rows (->> transactions
-                           (group-by :category)
-                           (map ->category-row)
-                           (sort-by (comp string/lower-case :category)))
-        totals (->> category-rows
-                    (map #(dissoc % :category))
-                    (apply merge-with +))
-        months (into #{} (comp (mapcat keys)
-                               (remove #{:category :-})) category-rows)
-        cols (concat [:category :-] (->> months sort reverse))]
-    (pprint/print-table cols (conj (vec category-rows)
-                                   (assoc totals :category "TOTAL")))))
+(defn overview
+  ([]
+   (overview 60))
+  ([n-months]
+   (let [transactions (db/aggregated-transactions)
+         ->category-row (fn [[category txs-cat]]
+                          (let [category (if category (name category) "-")
+                                m (->> (group-by :month txs-cat)
+                                       (map (fn [[month txs-mon]]
+                                              (let [month (if month (keyword month) :-)
+                                                    total (->> (map :amount txs-mon)
+                                                               (reduce +))]
+                                                [month total])))
+                                       (into {}))]
+                            (assoc m :category category)))
+         category-rows (->> transactions
+                            (group-by :category)
+                            (map ->category-row)
+                            (sort-by (comp string/lower-case :category)))
+         totals (->> category-rows
+                     (map #(dissoc % :category))
+                     (apply merge-with +))
+         months (into #{} (comp (mapcat keys)
+                                (remove #{:category :-})) category-rows)
+         n-months (if (string? n-months) (Integer/parseInt n-months) n-months)
+         cols (concat [:category :-] (->> months sort reverse (take n-months)))]
+     (pprint/print-table cols (conj (vec category-rows)
+                                    (assoc totals :category "TOTAL"))))))
 
 (defn -main
   ([]
