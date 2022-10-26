@@ -21,3 +21,6 @@ Monorepo that includes the same thingy built with different tools.
 | WASM                                                       | (in my dreams)                        |
 | ...                                                        | ...                                   |
 
+## Additional information
+
+Everything happens in `main` branch, so expect to find half-baked things here and there.
