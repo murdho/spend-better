@@ -4,7 +4,7 @@ Simple thingy for analyzing my expenses.
 
 Monorepo that includes the same thingy done using different tools.
 
-[![Symbolic house made from one hundred dollars isolated on white background](.assets/kostiantyn-li-1sCXwVoqKAw-unsplash.jpg)](https://unsplash.com/photos/1sCXwVoqKAw)
+[![Similar, but different.](.assets/vladislav-nahorny-VSQ2hu7SCSk-unsplash.jpg)](https://unsplash.com/photos/VSQ2hu7SCSk)
 
 
 ## Why?
