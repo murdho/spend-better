@@ -21,4 +21,3 @@ pom.xml.asc
 # End of https://www.toptal.com/developers/gitignore/api/clojure
 
 .spend-better.edn
-statements

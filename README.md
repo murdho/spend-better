@@ -1,13 +1,23 @@
 # spend-better
 
-Simple thingy for analyzing my expenses with babashka and PostgreSQL.
+Simple thingy for analyzing my expenses.
+
+Monorepo that includes the same thingy done using different tools.
+
+[![Symbolic house made from one hundred dollars isolated on white background](.assets/kostiantyn-li-1sCXwVoqKAw-unsplash.jpg)](https://unsplash.com/photos/1sCXwVoqKAw)
+
 
 ## Why?
 
 [Just for Fun. No, Really.](https://justforfunnoreally.dev/)
 
-## Status: WIP
 
-:construction: WORK IN PROGRESS - expect catastrophic changes :hammer_and_wrench:
+## Variants
 
-[![#dog #math](https://media.giphy.com/media/UKkes2qN2T70s/giphy.gif)](https://giphy.com/gifs/funny-dog-math-UKkes2qN2T70s)
+| Tools                                                      | Location                              |
+| ---------------------------------------------------------- | ------------------------------------- |
+| Clojure ([babashka](https://github.com/babashka/babashka)) | [clojure-babashka](/clojure-babashka) |
+| Rust                                                       | (in my mind)                          |
+| WASM                                                       | (in my dreams)                        |
+| ...                                                        | ...                                   |
+
