@@ -4,9 +4,6 @@ Simple thingy for analyzing my expenses.
 
 Monorepo that includes the same thingy built with different tools.
 
-[![Similar, but different.](.assets/vladislav-nahorny-VSQ2hu7SCSk-unsplash.jpg)](https://unsplash.com/photos/VSQ2hu7SCSk)
-
-
 ## Why?
 
 [Just for Fun. No, Really.](https://justforfunnoreally.dev/)
